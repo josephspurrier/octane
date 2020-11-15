@@ -21,7 +21,7 @@ type Binder struct {
 	validator *validator.Validate
 }
 
-// New returns a new binder for request bind and validation.
+// NewBinder returns a new binder for request bind and validation.
 func NewBinder() *Binder {
 	return &Binder{
 		validator: validator.New(),
