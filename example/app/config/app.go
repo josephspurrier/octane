@@ -1,7 +1,7 @@
 package config
 
 import (
-	"github.com/josephspurrier/octane/bind"
+	"github.com/josephspurrier/octane"
 	"github.com/josephspurrier/octane/example/app/endpoint"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -19,7 +19,7 @@ func Config() *echo.Echo {
 	// Use app context.
 	e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			cc := &endpoint.Context{Context: c}
+			cc := &octane.Context{Context: c}
 			return next(cc)
 		}
 	})
@@ -51,7 +51,7 @@ func Config() *echo.Echo {
 	// Static routes.
 	e.Static("/swagger/*", "swaggerui")
 
-	e.Binder = bind.New()
+	e.Binder = octane.NewBinder()
 
 	return e
 }

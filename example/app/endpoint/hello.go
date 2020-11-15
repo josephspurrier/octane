@@ -1,6 +1,7 @@
 package endpoint
 
 import (
+	"github.com/josephspurrier/octane"
 	"github.com/labstack/echo/v4"
 )
 
@@ -15,7 +16,7 @@ import (
 // Responses:
 //   200: OKResponse
 func Hello(c echo.Context) error {
-	cc := c.(*Context)
+	cc := c.(*octane.Context)
 	return cc.OKResponse("Hello World!")
 }
 

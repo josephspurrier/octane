@@ -1,4 +1,4 @@
-package bind
+package octane
 
 import (
 	"encoding/json"
@@ -22,7 +22,7 @@ type Binder struct {
 }
 
 // New returns a new binder for request bind and validation.
-func New() *Binder {
+func NewBinder() *Binder {
 	return &Binder{
 		validator: validator.New(),
 	}

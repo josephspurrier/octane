@@ -3,6 +3,7 @@ package endpoint
 import (
 	"net/http"
 
+	"github.com/josephspurrier/octane"
 	"github.com/labstack/echo/v4"
 )
 
@@ -16,7 +17,7 @@ import (
 //   400: BadRequestResponse
 //   500: InternalServerErrorResponse
 func Login(c echo.Context) (err error) {
-	cc := c.(*Context)
+	cc := c.(*octane.Context)
 
 	// swagger:parameters UserLogin
 	type Request struct {
@@ -40,7 +41,7 @@ func Login(c echo.Context) (err error) {
 	type LoginResponse struct {
 		// in: body
 		Body struct {
-			CommonStatusFields
+			octane.CommonStatusFields
 			Data struct {
 				// Token contains the API token for authentication
 				// example: api-123456

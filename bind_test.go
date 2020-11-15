@@ -1,4 +1,4 @@
-package bind_test
+package octane_test
 
 import (
 	"bytes"
@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/josephspurrier/octane/bind"
+	"github.com/josephspurrier/octane"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 )
@@ -17,7 +17,7 @@ func TestFormSuccess(t *testing.T) {
 	called := false
 
 	e := echo.New()
-	cb := bind.New()
+	cb := octane.NewBinder()
 	e.Binder = cb
 
 	e.POST("/user/:user_id", func(c echo.Context) error {
@@ -60,7 +60,7 @@ func TestFormFailValidate(t *testing.T) {
 	called := false
 
 	e := echo.New()
-	cb := bind.New()
+	cb := octane.NewBinder()
 	e.Binder = cb
 
 	e.POST("/user/:user_id", func(c echo.Context) error {
@@ -103,7 +103,7 @@ func TestFormNil(t *testing.T) {
 	called := false
 
 	e := echo.New()
-	cb := bind.New()
+	cb := octane.NewBinder()
 	e.Binder = cb
 
 	e.POST("/user/:user_id", func(c echo.Context) error {
@@ -142,7 +142,7 @@ func TestFormMissingPointer(t *testing.T) {
 	called := false
 
 	e := echo.New()
-	cb := bind.New()
+	cb := octane.NewBinder()
 	e.Binder = cb
 
 	e.POST("/user/:user_id", func(c echo.Context) error {
@@ -186,7 +186,7 @@ func TestJSONSuccess(t *testing.T) {
 	called := false
 
 	e := echo.New()
-	cb := bind.New()
+	cb := octane.NewBinder()
 	e.Binder = cb
 
 	e.POST("/user/:user_id", func(c echo.Context) error {
@@ -231,7 +231,7 @@ func TestJSONFailure(t *testing.T) {
 	called := false
 
 	e := echo.New()
-	cb := bind.New()
+	cb := octane.NewBinder()
 	e.Binder = cb
 
 	e.POST("/user/:user_id", func(c echo.Context) error {
@@ -276,7 +276,7 @@ func TestJSONFailureNil(t *testing.T) {
 	called := false
 
 	e := echo.New()
-	cb := bind.New()
+	cb := octane.NewBinder()
 	e.Binder = cb
 
 	e.POST("/user/:user_id", func(c echo.Context) error {
@@ -317,7 +317,7 @@ func TestJSONFailureDataType(t *testing.T) {
 	called := false
 
 	e := echo.New()
-	cb := bind.New()
+	cb := octane.NewBinder()
 	e.Binder = cb
 
 	e.POST("/user/:user_id", func(c echo.Context) error {
