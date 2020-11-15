@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/josephspurrier/octaneswag/pkg/bind"
+	"github.com/josephspurrier/octane/bind"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 )

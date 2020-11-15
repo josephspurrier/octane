@@ -3,8 +3,8 @@ package config
 import (
 	"os"
 
-	"github.com/josephspurrier/octaneswag/migration"
-	"github.com/josephspurrier/octaneswag/pkg/database"
+	"github.com/josephspurrier/octane/example/app/database"
+	"github.com/josephspurrier/octane/example/app/migration"
 	"github.com/josephspurrier/rove/pkg/adapter/mysql"
 	"github.com/labstack/echo/v4"
 )

@@ -25,7 +25,7 @@
 // swagger:meta
 package main
 
-import "github.com/josephspurrier/octaneswag/config"
+import "github.com/josephspurrier/octane/example/app/config"
 
 func main() {
 	// Load the application.

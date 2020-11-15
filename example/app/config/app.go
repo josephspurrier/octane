@@ -1,8 +1,8 @@
 package config
 
 import (
-	"github.com/josephspurrier/octaneswag/endpoint"
-	"github.com/josephspurrier/octaneswag/pkg/bind"
+	"github.com/josephspurrier/octane/bind"
+	"github.com/josephspurrier/octane/example/app/endpoint"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
