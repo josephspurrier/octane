@@ -1,2 +1,3 @@
-# octane
-Template for Go REST API using Echo and Swagger
+# Octane
+
+Template for Go REST API using Echo and Swagger.
