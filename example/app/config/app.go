@@ -29,17 +29,6 @@ func Config() *echo.Echo {
 	ac.DB = Database(e.Logger)
 	ac.Passhash = passhash.New()
 
-	// Use app context.
-	// e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
-	// 	return func(c echo.Context) error {
-	// 		cc := &app.Context{
-	// 			ResponseJSON: octane.ResponseJSON{Context: c},
-	// 			DB:           db,
-	// 		}
-	// 		return next(cc)
-	// 	}
-	// })
-
 	// Set the default error handler so all errors use the standard format.
 	e.HTTPErrorHandler = func(err error, c echo.Context) {
 		cc := &app.Context{
