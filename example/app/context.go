@@ -10,7 +10,8 @@ import (
 )
 
 var (
-	keyUserID = contextKey("user_id")
+	// KeyUserID -
+	KeyUserID = contextKey("user_id")
 )
 
 type contextKey string
@@ -40,11 +41,11 @@ func (ctx *Context) HandlerFunc(next func(*Context) error) echo.HandlerFunc {
 // SetUserID will set the user ID in the context.
 func (ctx *Context) SetUserID(val string) {
 	r := ctx.Request()
-	*r = *r.WithContext(context.WithValue(r.Context(), keyUserID, val))
+	*r = *r.WithContext(context.WithValue(r.Context(), KeyUserID, val))
 }
 
 // UserID gets the user ID from the context.
 func (ctx *Context) UserID() (string, bool) {
-	val, ok := ctx.Request().Context().Value(keyUserID).(string)
+	val, ok := ctx.Request().Context().Value(KeyUserID).(string)
 	return val, ok
 }

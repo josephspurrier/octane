@@ -3,7 +3,7 @@ package endpoint
 import "github.com/josephspurrier/octane/example/app"
 
 // Healthcheck -
-// swagger:route GET / healthcheck HealthcheckGET
+// swagger:route GET /api/v1/healthcheck healthcheck HealthcheckGET
 //
 // Returns an OK message to show the application is functioning.
 //

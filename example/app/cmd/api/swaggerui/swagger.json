@@ -17,7 +17,7 @@
   "host": "localhost:8080",
   "basePath": "/",
   "paths": {
-    "/": {
+    "/api/v1/healthcheck": {
       "get": {
         "description": "You can use this endpoint as a healthcheck for a load balancer.",
         "tags": [
@@ -80,6 +80,32 @@
       }
     },
     "/api/v1/note": {
+      "get": {
+        "security": [
+          {
+            "token": []
+          }
+        ],
+        "tags": [
+          "note"
+        ],
+        "summary": "List notes.",
+        "operationId": "NoteIndex",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/NoteIndexResponse"
+          },
+          "400": {
+            "$ref": "#/responses/BadRequestResponse"
+          },
+          "401": {
+            "$ref": "#/responses/UnauthorizedResponse"
+          },
+          "500": {
+            "$ref": "#/responses/InternalServerErrorResponse"
+          }
+        }
+      },
       "post": {
         "security": [
           {
@@ -127,15 +153,12 @@
         "security": [
           {
             "token": []
-          },
-          {
-            "token": []
           }
         ],
         "tags": [
           "note"
         ],
-        "summary": "List notes.",
+        "summary": "Show a note.",
         "operationId": "NoteDestroy",
         "responses": {
           "200": {
@@ -388,6 +411,45 @@
             "type": "string",
             "x-go-name": "StatusMessage",
             "example": "Created"
+          }
+        }
+      }
+    },
+    "NoteIndexResponse": {
+      "description": "NoteIndexResponse returns an array of notes.",
+      "schema": {
+        "type": "object",
+        "required": [
+          "status_code",
+          "status_message"
+        ],
+        "properties": {
+          "data": {
+            "type": "object",
+            "required": [
+              "notes"
+            ],
+            "properties": {
+              "notes": {
+                "type": "array",
+                "items": {},
+                "x-go-name": "Notes"
+              }
+            },
+            "x-go-name": "Data"
+          },
+          "status_code": {
+            "description": "Code contains the HTTP status code.",
+            "type": "integer",
+            "format": "int64",
+            "x-go-name": "StatusCode",
+            "example": 200
+          },
+          "status_message": {
+            "description": "Status contains the string of the HTTP status.",
+            "type": "string",
+            "x-go-name": "StatusMessage",
+            "example": "OK"
           }
         }
       }

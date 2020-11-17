@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/josephspurrier/octane"
@@ -19,15 +20,37 @@ func Config() *echo.Echo {
 	e := echo.New()
 	e.HideBanner = true
 
+	// Load the environment variables.
+	settings := LoadEnv(e.Logger, "")
+
 	// Middleware.
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
+	e.Use(middleware.JWTWithConfig(middleware.JWTConfig{
+		SigningKey: []byte(settings.Secret),
+		ContextKey: string(app.KeyUserID),
+		Skipper: func(c echo.Context) bool {
+			p := c.Request().URL.Path
+
+			switch true {
+			case p == "/favicon.ico":
+				return true
+			case p == "/api/v1/healthcheck":
+				return true
+			case p == "/api/v1/register":
+				return true
+			case p == "/api/v1/login":
+				return true
+			case strings.HasPrefix(p, "/swagger/"):
+				return true
+			}
+
+			return false
+		},
+	}))
 
 	// Use Go Playground Validator.
 	e.Binder = octane.NewBinder()
-
-	// Load the environment variables.
-	settings := LoadEnv(e.Logger, "")
 
 	// Connect the services.
 	// Any changes here need to be also be made in the app/context.go file.

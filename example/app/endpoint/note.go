@@ -5,6 +5,7 @@ import (
 
 	"github.com/josephspurrier/octane"
 	"github.com/josephspurrier/octane/example/app"
+	"github.com/josephspurrier/octane/example/app/lib/structcopy"
 	"github.com/josephspurrier/octane/example/app/store"
 )
 
@@ -70,7 +71,6 @@ func NoteCreate(c *app.Context) (err error) {
 	return c.DataResponse(http.StatusCreated, data)
 }
 
-/*
 // NoteIndex -
 // swagger:route GET /api/v1/note note NoteIndex
 //
@@ -86,36 +86,58 @@ func NoteCreate(c *app.Context) (err error) {
 //   500: InternalServerErrorResponse
 func NoteIndex(c *app.Context) (err error) {
 	// Get the user ID.
-	userID, ok := p.Context.UserID(r)
+	userID, ok := c.UserID()
 	if !ok {
-		return http.StatusInternalServerError, errors.New("invalid user")
+		return c.InternalServerErrorResponse("invalid user")
 	}
 
 	// Get a list of notes for the user.
-	group := p.Store.Note.NewGroup()
-	_, err := p.Store.Note.FindAllByUser(&group, userID)
+	group := make([]store.Note, 0)
+	_, err = store.NoteFindAllByUser(c.DB, &group, userID)
 	if err != nil {
-		return http.StatusInternalServerError, err
+		return c.InternalServerErrorResponse(err.Error())
+	}
+
+	// Note is a note of a user.
+	type Note struct {
+		// Required: true
+		UserID string `json:"id"`
+		// Required: true
+		Message string `json:"message"`
 	}
 
 	// Copy the items to the JSON model.
-	arr := make([]model.Note, 0)
+	arr := make([]Note, 0)
 	for _, u := range group {
-		item := new(model.Note)
+		item := new(Note)
 		err = structcopy.ByTag(&u, "db", item, "json")
 		if err != nil {
-			return http.StatusInternalServerError, err
+			return c.InternalServerErrorResponse(err.Error())
 		}
 		arr = append(arr, *item)
 	}
 
-	// Create the response.
-	m := new(model.NoteIndexResponse).Body
-	m.Notes = arr
+	// NoteIndexResponse returns an array of notes.
+	// swagger:response NoteIndexResponse
+	type NoteIndexResponse struct {
+		// in: body
+		Body struct {
+			octane.OKStatusFields
+			Data struct {
+				// Required: true
+				Notes []Note `json:"notes"`
+			} `json:"data"`
+		}
+	}
 
-	return p.Response.JSON(w, m)
+	// Set the notes.
+	data := new(NoteIndexResponse).Body.Data
+	data.Notes = arr
+
+	return c.DataResponse(http.StatusOK, data)
 }
 
+/*
 // NoteShow -
 // swagger:route GET /api/v1/note/{note_id} note NoteShow
 //

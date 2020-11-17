@@ -44,3 +44,16 @@ func NoteCreate(db app.IDatabase, userID, message string) (string, error) {
 
 	return uuid, err
 }
+
+// NoteFindAllByUser returns all notes for a user.
+func NoteFindAllByUser(db app.IDatabase, dest *[]Note, userID string) (
+	total int, err error) {
+	err = db.Select(dest, `
+		SELECT *
+		FROM note
+		WHERE user_id = ?
+		ORDER BY message ASC
+		`,
+		userID)
+	return len(*dest), db.SuppressNoRowsError(err)
+}
