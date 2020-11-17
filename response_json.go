@@ -8,8 +8,8 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// CommonStatusFields should be included in all requests.
-type CommonStatusFields struct {
+// OKStatusFields should be included in all requests.
+type OKStatusFields struct {
 	// Code contains the HTTP status code.
 	// example: 200
 	// required: true
@@ -29,8 +29,20 @@ type OKResponse struct {
 		// example: The operation was successful.
 		// required: true
 		Message string `json:"message"`
-		CommonStatusFields
+		OKStatusFields
 	}
+}
+
+// CreatedStatusFields should be included in all requests.
+type CreatedStatusFields struct {
+	// Code contains the HTTP status code.
+	// example: 201
+	// required: true
+	StatusCode int `json:"status_code"`
+	// Status contains the string of the HTTP status.
+	// example: Created
+	// required: true
+	StatusMessage string `json:"status_message"`
 }
 
 // BadRequestResponse is a failure.
@@ -154,8 +166,8 @@ func (c *ResponseJSON) InternalServerErrorResponse(message string) error {
 
 // DataResponse sends content with a status_code and a status_message to the response writer.
 func (c *ResponseJSON) DataResponse(code int, i interface{}) error {
-	c.Response().Status = code
-	c.Response().Header().Set("Content-Type", "application/json")
+	c.Response().WriteHeader(code)
+	c.Response().Header().Set(echo.HeaderContentType, "application/json")
 
 	f := map[string]interface{}{
 		"data":           i,

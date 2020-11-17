@@ -62,6 +62,7 @@ func Config() *echo.Echo {
 	// Endpoints.
 	e.GET("/", ac.HandlerFunc(endpoint.Healthcheck))
 	e.POST("/api/v1/login", ac.HandlerFunc(endpoint.Login))
+	e.POST("/api/v1/register", ac.HandlerFunc(endpoint.Register))
 
 	// Static routes.
 	e.Static("/swagger/*", "swaggerui")
