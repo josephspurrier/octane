@@ -113,12 +113,13 @@ type InternalServerErrorResponse struct {
 	}
 }
 
-// Context -
-type Context struct {
+// ResponseJSON -
+type ResponseJSON struct {
 	echo.Context
 }
 
-func (c *Context) sendResponse(message string, statusCode int) error {
+// MessageResponse sends a JSON message with a status code.
+func (c *ResponseJSON) MessageResponse(message string, statusCode int) error {
 	resp := new(OKResponse)
 	resp.Body.Message = message
 	resp.Body.StatusCode = statusCode
@@ -127,32 +128,32 @@ func (c *Context) sendResponse(message string, statusCode int) error {
 }
 
 // OKResponse sends 200.
-func (c *Context) OKResponse(message string) error {
-	return c.sendResponse(message, http.StatusOK)
+func (c *ResponseJSON) OKResponse(message string) error {
+	return c.MessageResponse(message, http.StatusOK)
 }
 
 // BadRequestResponse sends 400.
-func (c *Context) BadRequestResponse(message string) error {
-	return c.sendResponse(message, http.StatusBadRequest)
+func (c *ResponseJSON) BadRequestResponse(message string) error {
+	return c.MessageResponse(message, http.StatusBadRequest)
 }
 
 // UnauthorizedResponse sends 401.
-func (c *Context) UnauthorizedResponse(message string) error {
-	return c.sendResponse(message, http.StatusUnauthorized)
+func (c *ResponseJSON) UnauthorizedResponse(message string) error {
+	return c.MessageResponse(message, http.StatusUnauthorized)
 }
 
 // NotFoundResponse sends 404.
-func (c *Context) NotFoundResponse(message string) error {
-	return c.sendResponse(message, http.StatusNotFound)
+func (c *ResponseJSON) NotFoundResponse(message string) error {
+	return c.MessageResponse(message, http.StatusNotFound)
 }
 
 // InternalServerErrorResponse sends 500.
-func (c *Context) InternalServerErrorResponse(message string) error {
-	return c.sendResponse(message, http.StatusInternalServerError)
+func (c *ResponseJSON) InternalServerErrorResponse(message string) error {
+	return c.MessageResponse(message, http.StatusInternalServerError)
 }
 
 // DataResponse sends content with a status_code and a status_message to the response writer.
-func (c *Context) DataResponse(code int, i interface{}) error {
+func (c *ResponseJSON) DataResponse(code int, i interface{}) error {
 	c.Response().Status = code
 	c.Response().Header().Set("Content-Type", "application/json")
 

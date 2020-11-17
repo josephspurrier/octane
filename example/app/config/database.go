@@ -1,10 +1,12 @@
 package config
 
 import (
+	"fmt"
 	"os"
 
-	"github.com/josephspurrier/octane/example/app/database"
-	"github.com/josephspurrier/octane/example/app/migration"
+	"github.com/jmoiron/sqlx"
+	"github.com/josephspurrier/octane/example/app/lib/database"
+	"github.com/josephspurrier/rove"
 	"github.com/josephspurrier/rove/pkg/adapter/mysql"
 	"github.com/labstack/echo/v4"
 )
@@ -31,10 +33,45 @@ func Database(l echo.Logger) *database.DBW {
 	}
 
 	// Migrate the database.
-	dbx, err := database.Migrate(l, con, migration.Changesets)
+	dbx, err := migrate(l, con, Changesets)
 	if err != nil {
 		l.Fatalf(err.Error())
 	}
 
 	return database.New(dbx, con.Name)
+}
+
+// migrate will run the database migrations and will create the database if it
+// does not exist.
+func migrate(l echo.Logger, con *mysql.Connection, changesets string) (*sqlx.DB, error) {
+	// Connect to the database.
+	db, err := mysql.New(con)
+	if err != nil {
+		// Attempt to connect without the database name.
+		d, err := con.Connect(false)
+		if err != nil {
+			return nil, err
+		}
+
+		// Create the database.
+		_, err = d.Query(fmt.Sprintf(`CREATE DATABASE IF NOT EXISTS %v
+		DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;`, con.Name))
+		if err != nil {
+			return nil, err
+		}
+		if l != nil {
+			l.Printf("Database created.")
+		}
+
+		// Attempt to reconnect with the database name.
+		db, err = mysql.New(con)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// Perform all migrations against the database.
+	r := rove.NewChangesetMigration(db, changesets)
+	r.Verbose = false
+	return db.DB, r.Migrate(0)
 }

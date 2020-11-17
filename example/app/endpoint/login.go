@@ -4,7 +4,9 @@ import (
 	"net/http"
 
 	"github.com/josephspurrier/octane"
-	"github.com/labstack/echo/v4"
+	"github.com/josephspurrier/octane/example/app"
+	"github.com/josephspurrier/octane/example/app/lib/securegen"
+	"github.com/josephspurrier/octane/example/app/store"
 )
 
 // Login .
@@ -16,9 +18,7 @@ import (
 //   200: LoginResponse
 //   400: BadRequestResponse
 //   500: InternalServerErrorResponse
-func Login(c echo.Context) (err error) {
-	cc := c.(*octane.Context)
-
+func Login(c *app.Context) (err error) {
 	// swagger:parameters UserLogin
 	type Request struct {
 		// in: body
@@ -33,7 +33,7 @@ func Login(c echo.Context) (err error) {
 	// Request validation.
 	req := new(Request)
 	if err = c.Bind(req); err != nil {
-		return cc.BadRequestResponse(err.Error())
+		return c.BadRequestResponse(err.Error())
 	}
 
 	// LoginResponse returns a token.
@@ -51,35 +51,27 @@ func Login(c echo.Context) (err error) {
 		}
 	}
 
-	m := new(LoginResponse).Body.Data
-	m.Token = "random"
+	// Check if user exists.
+	user := new(store.User)
+	found, err := store.FindOneByField(c.DB, user, "email", req.Body.Email)
+	if err != nil {
+		return c.InternalServerErrorResponse(err.Error())
+	} else if !found {
+		return c.BadRequestResponse("login information does not match")
+	}
 
-	return cc.DataResponse(http.StatusOK, m)
+	// Check user password.
+	if !c.Passhash.Match(user.Password, req.Body.Password) {
+		return c.BadRequestResponse("login information does not match")
+	}
 
-	// // Determine if the user exists.
-	// user := p.Store.User.New()
-	// found, err := p.Store.User.FindOneByField(&user, "email", req.Body.Email)
-	// if err != nil {
-	// 	return http.StatusInternalServerError, err
-	// } else if !found {
-	// 	return http.StatusBadRequest, errors.New("login information does not match")
-	// }
+	data := new(LoginResponse).Body.Data
 
-	// // Ensure the user's password matches. Use the same error message to prevent
-	// // brute-force from finding usernames.
-	// if !p.Password.Match(user.Password, req.Body.Password) {
-	// 	return http.StatusBadRequest, errors.New("login information does not match")
-	// }
+	// Generate a token for the user.
+	data.Token, err = securegen.UUID()
+	if err != nil {
+		return c.InternalServerErrorResponse(err.Error())
+	}
 
-	// // Create the response.
-	// m := new(model.LoginResponse).Body
-	// m.Status = http.StatusText(http.StatusOK)
-
-	// // Generate the access token.
-	// m.Token, err = p.Token.Generate(user.ID)
-	// if err != nil {
-	// 	return http.StatusInternalServerError, err
-	// }
-
-	// return p.Response.JSON(w, m)
+	return c.DataResponse(http.StatusOK, data)
 }
