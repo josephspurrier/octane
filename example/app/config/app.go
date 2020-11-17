@@ -3,11 +3,13 @@ package config
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/josephspurrier/octane"
 	"github.com/josephspurrier/octane/example/app"
 	"github.com/josephspurrier/octane/example/app/endpoint"
 	"github.com/josephspurrier/octane/example/app/lib/passhash"
+	"github.com/josephspurrier/octane/example/app/lib/webtoken"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -24,16 +26,20 @@ func Config() *echo.Echo {
 	// Use Go Playground Validator.
 	e.Binder = octane.NewBinder()
 
+	// Load the environment variables.
+	settings := LoadEnv(e.Logger, "")
+
 	// Connect the services.
+	// Any changes here need to be also be made in the app/context.go file.
 	ac := new(app.Context)
 	ac.DB = Database(e.Logger)
 	ac.Passhash = passhash.New()
+	ac.Webtoken = webtoken.New([]byte(settings.Secret), time.Duration(settings.SessionTimeout)*time.Minute)
 
 	// Set the default error handler so all errors use the standard format.
 	e.HTTPErrorHandler = func(err error, c echo.Context) {
 		cc := &app.Context{
 			ResponseJSON: octane.ResponseJSON{Context: c},
-			DB:           ac.DB,
 		}
 
 		code := http.StatusInternalServerError

@@ -4,6 +4,7 @@ go 1.15
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-playground/universal-translator v0.17.0 // indirect
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/josephspurrier/rove v0.0.0-20190513125012-6843a2df19ca

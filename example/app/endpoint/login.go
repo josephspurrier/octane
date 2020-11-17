@@ -5,7 +5,6 @@ import (
 
 	"github.com/josephspurrier/octane"
 	"github.com/josephspurrier/octane/example/app"
-	"github.com/josephspurrier/octane/example/app/lib/securegen"
 	"github.com/josephspurrier/octane/example/app/store"
 )
 
@@ -68,7 +67,7 @@ func Login(c *app.Context) (err error) {
 	data := new(LoginResponse).Body.Data
 
 	// Generate a token for the user.
-	data.Token, err = securegen.UUID()
+	data.Token, err = c.Webtoken.Generate(user.ID)
 	if err != nil {
 		return c.InternalServerErrorResponse(err.Error())
 	}

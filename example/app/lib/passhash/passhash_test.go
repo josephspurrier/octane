@@ -1,14 +1,15 @@
-package passhash
+package passhash_test
 
 import (
 	"testing"
 
+	"github.com/josephspurrier/octane/example/app/lib/passhash"
 	"github.com/stretchr/testify/assert"
 )
 
 // TestStringString tests string to string hash.
 func TestStringString(t *testing.T) {
-	ph := New()
+	ph := passhash.New()
 	plainText := "This is a test."
 	hash, err := ph.Hash(plainText)
 	assert.Nil(t, err)
@@ -22,7 +23,7 @@ func TestStringString(t *testing.T) {
 
 // TestByteByte tests byte to byte hash.
 func TestByteByte(t *testing.T) {
-	ph := New()
+	ph := passhash.New()
 	plainText := []byte("This is a test.")
 	hash, err := ph.HashBytes(plainText)
 	assert.Nil(t, err)
@@ -36,7 +37,7 @@ func TestByteByte(t *testing.T) {
 
 // TestStringByte tests string to byte hash.
 func TestStringByte(t *testing.T) {
-	ph := New()
+	ph := passhash.New()
 	plainText := "This is a test."
 	hash, err := ph.Hash(plainText)
 	assert.Nil(t, err)
@@ -45,7 +46,7 @@ func TestStringByte(t *testing.T) {
 
 // TestByteString tests byte to string hash.
 func TestByteString(t *testing.T) {
-	ph := New()
+	ph := passhash.New()
 	plainText := []byte("This is a test.")
 	hash, err := ph.HashBytes(plainText)
 	assert.Nil(t, err)
@@ -54,7 +55,7 @@ func TestByteString(t *testing.T) {
 
 // TestHashEmpty tests empty string which should pass fine.
 func TestHashEmpty(t *testing.T) {
-	ph := New()
+	ph := passhash.New()
 	plainText := ""
 	hash, err := ph.Hash(plainText)
 	assert.Nil(t, err)
