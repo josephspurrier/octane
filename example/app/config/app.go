@@ -60,9 +60,14 @@ func Config() *echo.Echo {
 	}
 
 	// Endpoints.
-	e.GET("/", ac.HandlerFunc(endpoint.Healthcheck))
+	e.GET("/api/v1/healthcheck", ac.HandlerFunc(endpoint.Healthcheck))
 	e.POST("/api/v1/login", ac.HandlerFunc(endpoint.Login))
 	e.POST("/api/v1/register", ac.HandlerFunc(endpoint.Register))
+	e.POST("/api/v1/note", ac.HandlerFunc(endpoint.NoteCreate))
+	// e.GET("/api/v1/note", ac.HandlerFunc(endpoint.NoteIndex))
+	// e.GET("/api/v1/note/:note_id", ac.HandlerFunc(NoteShow))
+	// e.PUT("/api/v1/note/:note_id", NoteUpdate)
+	// e.DELETE("/api/v1/note/:note_id", NoteDestroy)
 
 	// Static routes.
 	e.Static("/swagger/*", "swaggerui")

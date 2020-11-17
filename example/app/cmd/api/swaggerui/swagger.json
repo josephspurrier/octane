@@ -19,11 +19,6 @@
   "paths": {
     "/": {
       "get": {
-        "security": [
-          {
-            "token": []
-          }
-        ],
         "description": "You can use this endpoint as a healthcheck for a load balancer.",
         "tags": [
           "healthcheck"
@@ -77,6 +72,80 @@
           },
           "400": {
             "$ref": "#/responses/BadRequestResponse"
+          },
+          "500": {
+            "$ref": "#/responses/InternalServerErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/v1/note": {
+      "post": {
+        "security": [
+          {
+            "token": []
+          }
+        ],
+        "tags": [
+          "note"
+        ],
+        "summary": "Create a note.",
+        "operationId": "NoteCreate",
+        "parameters": [
+          {
+            "name": "Body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "x-go-name": "Message"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "$ref": "#/responses/NoteCreateReponse"
+          },
+          "400": {
+            "$ref": "#/responses/BadRequestResponse"
+          },
+          "401": {
+            "$ref": "#/responses/UnauthorizedResponse"
+          },
+          "500": {
+            "$ref": "#/responses/InternalServerErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/v1/note/{note_id}": {
+      "delete": {
+        "security": [
+          {
+            "token": []
+          },
+          {
+            "token": []
+          }
+        ],
+        "tags": [
+          "note"
+        ],
+        "summary": "List notes.",
+        "operationId": "NoteDestroy",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/NoteShowResponse"
+          },
+          "400": {
+            "$ref": "#/responses/BadRequestResponse"
+          },
+          "401": {
+            "$ref": "#/responses/UnauthorizedResponse"
           },
           "500": {
             "$ref": "#/responses/InternalServerErrorResponse"
@@ -283,6 +352,46 @@
         }
       }
     },
+    "NoteCreateReponse": {
+      "description": "NoteCreateReponse returns a user ID.",
+      "schema": {
+        "type": "object",
+        "required": [
+          "status_code",
+          "status_message"
+        ],
+        "properties": {
+          "data": {
+            "type": "object",
+            "required": [
+              "record_id"
+            ],
+            "properties": {
+              "record_id": {
+                "description": "RecordID contains the newly created note ID.",
+                "type": "string",
+                "x-go-name": "RecordID",
+                "example": "314445cd-e9fb-4c58-58b6-777ee06465f5"
+              }
+            },
+            "x-go-name": "Data"
+          },
+          "status_code": {
+            "description": "Code contains the HTTP status code.",
+            "type": "integer",
+            "format": "int64",
+            "x-go-name": "StatusCode",
+            "example": 201
+          },
+          "status_message": {
+            "description": "Status contains the string of the HTTP status.",
+            "type": "string",
+            "x-go-name": "StatusMessage",
+            "example": "Created"
+          }
+        }
+      }
+    },
     "OKResponse": {
       "description": "OKResponse is a success.",
       "schema": {
@@ -331,7 +440,7 @@
             ],
             "properties": {
               "record_id": {
-                "description": "RecordID containers the newly created user ID.",
+                "description": "RecordID contains the newly created user ID.",
                 "type": "string",
                 "x-go-name": "RecordID",
                 "example": "314445cd-e9fb-4c58-58b6-777ee06465f5"

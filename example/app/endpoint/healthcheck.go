@@ -9,9 +9,6 @@ import "github.com/josephspurrier/octane/example/app"
 //
 // You can use this endpoint as a healthcheck for a load balancer.
 //
-// Security:
-//   token:
-//
 // Responses:
 //   200: OKResponse
 func Healthcheck(c *app.Context) error {
