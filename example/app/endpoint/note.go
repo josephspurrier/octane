@@ -137,7 +137,6 @@ func NoteIndex(c *app.Context) (err error) {
 	return c.DataResponse(http.StatusOK, data)
 }
 
-/*
 // NoteShow -
 // swagger:route GET /api/v1/note/{note_id} note NoteShow
 //
@@ -153,45 +152,69 @@ func NoteIndex(c *app.Context) (err error) {
 //   500: InternalServerErrorResponse
 func NoteShow(c *app.Context) (err error) {
 	// swagger:parameters NoteShow
-	type request struct {
+	type Request struct {
+		// example:
 		// in: path
 		NoteID string `json:"note_id" validate:"required"`
 	}
 
 	// Request validation.
-	req := new(request)
-	if err := p.Bind.UnmarshalAndValidate(req, r); err != nil {
-		return http.StatusBadRequest, err
+	req := new(Request)
+	if err = c.Bind(req); err != nil {
+		return c.BadRequestResponse(err.Error())
 	}
 
 	// Get the user ID.
-	userID, ok := p.Context.UserID(r)
+	userID, ok := c.UserID()
 	if !ok {
-		return http.StatusInternalServerError, errors.New("invalid user")
+		return c.InternalServerErrorResponse("invalid user")
 	}
 
 	// Get the note for the user.
-	note := p.Store.Note.New()
-	exists, err := p.Store.Note.FindOneByIDAndUser(&note, req.NoteID, userID)
+	note := new(store.Note)
+	exists, err := store.FindOneByIDAndUser(c.DB, note, req.NoteID, userID)
 	if err != nil {
-		return http.StatusInternalServerError, err
+		return c.InternalServerErrorResponse(err.Error())
 	} else if !exists {
-		return http.StatusBadRequest, errors.New("invalid note")
+		return c.BadRequestResponse("invalid note")
+	}
+
+	// Note is a note of a user.
+	type Note struct {
+		// required: true
+		UserID string `json:"id"`
+		// required: true
+		Message string `json:"message"`
 	}
 
 	// Copy the items to the JSON model.
-	item := new(model.Note)
+	item := new(Note)
 	err = structcopy.ByTag(&note, "db", item, "json")
 	if err != nil {
-		return http.StatusInternalServerError, err
+		return c.InternalServerErrorResponse(err.Error())
+	}
+
+	// NoteShowResponse returns 200.
+	// swagger:response NoteShowResponse
+	type NoteShowResponse struct {
+		// in: body
+		Body struct {
+			octane.OKStatusFields
+			Data struct {
+				// required: true
+				Note Note `json:"note"`
+			} `json:"data"`
+		}
 	}
 
 	// Create the response.
-	m := new(model.NoteShowResponse).Body
-	m.Note = *item
+	data := new(NoteShowResponse).Body.Data
+	data.Note = *item
 
-	return p.Response.JSON(w, m)
+	return c.DataResponse(http.StatusOK, data)
 }
+
+/*
 
 // NoteUpdate -
 // swagger:route PUT /api/v1/note/{note_id} note NoteUpdate

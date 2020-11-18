@@ -149,7 +149,7 @@
       }
     },
     "/api/v1/note/{note_id}": {
-      "delete": {
+      "get": {
         "security": [
           {
             "token": []
@@ -159,10 +159,45 @@
           "note"
         ],
         "summary": "Show a note.",
-        "operationId": "NoteDestroy",
+        "operationId": "NoteShow",
+        "parameters": [
+          {
+            "type": "string",
+            "x-go-name": "NoteID",
+            "name": "note_id",
+            "in": "path",
+            "required": true
+          }
+        ],
         "responses": {
           "200": {
             "$ref": "#/responses/NoteShowResponse"
+          },
+          "400": {
+            "$ref": "#/responses/BadRequestResponse"
+          },
+          "401": {
+            "$ref": "#/responses/UnauthorizedResponse"
+          },
+          "500": {
+            "$ref": "#/responses/InternalServerErrorResponse"
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "token": []
+          }
+        ],
+        "tags": [
+          "note"
+        ],
+        "summary": "Update a note.",
+        "operationId": "NoteDestroy",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/OKResponse"
           },
           "400": {
             "$ref": "#/responses/BadRequestResponse"
@@ -434,6 +469,43 @@
                 "type": "array",
                 "items": {},
                 "x-go-name": "Notes"
+              }
+            },
+            "x-go-name": "Data"
+          },
+          "status_code": {
+            "description": "Code contains the HTTP status code.",
+            "type": "integer",
+            "format": "int64",
+            "x-go-name": "StatusCode",
+            "example": 200
+          },
+          "status_message": {
+            "description": "Status contains the string of the HTTP status.",
+            "type": "string",
+            "x-go-name": "StatusMessage",
+            "example": "OK"
+          }
+        }
+      }
+    },
+    "NoteShowResponse": {
+      "description": "NoteShowResponse returns 200.",
+      "schema": {
+        "type": "object",
+        "required": [
+          "status_code",
+          "status_message"
+        ],
+        "properties": {
+          "data": {
+            "type": "object",
+            "required": [
+              "note"
+            ],
+            "properties": {
+              "note": {
+                "x-go-name": "Note"
               }
             },
             "x-go-name": "Data"

@@ -57,3 +57,16 @@ func NoteFindAllByUser(db app.IDatabase, dest *[]Note, userID string) (
 		userID)
 	return len(*dest), db.SuppressNoRowsError(err)
 }
+
+// FindOneByIDAndUser returns a note for a user.
+func FindOneByIDAndUser(db app.IDatabase, dest *Note, ID string, userID string) (exists bool, err error) {
+	err = db.Get(dest, `
+		SELECT *
+		FROM note
+		WHERE id = ?
+		AND user_id = ?
+		LIMIT 1
+		`,
+		ID, userID)
+	return db.RecordExists(err)
+}

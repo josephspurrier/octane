@@ -47,6 +47,13 @@ db-reset: # Drop the database, create the database, and perform the migrations.
 	docker exec ${MYSQL_NAME} sh -c "exec mysql -h 127.0.0.1 -uroot -p${MYSQL_ROOT_PASSWORD} -e 'CREATE DATABASE IF NOT EXISTS main DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;'"
 	MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD} go run ./example/app/cmd/dbmigrate/main.go
 
+.PHONY: db-reset2
+db-reset2: # Drop the database, create the database, and perform the migrations.
+	mysql -h 127.0.0.1 -u admin -p${MYSQL_ROOT_PASSWORD} -e 'DROP DATABASE IF EXISTS main;'
+	mysql -h 127.0.0.1 -u admin -p${MYSQL_ROOT_PASSWORD} -e 'CREATE DATABASE IF NOT EXISTS main DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;'
+	MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD} go run ./example/app/cmd/dbmigrate/main.go
+
+
 .PHONY: db-rm
 db-rm: # Stop and remove the database container.
 	docker rm -f ${MYSQL_NAME}

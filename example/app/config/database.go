@@ -25,7 +25,7 @@ func Database(l echo.Logger) *database.DBW {
 	// Set the database connection information.
 	con := &mysql.Connection{
 		Hostname:  host,
-		Username:  "root",
+		Username:  "admin",
 		Password:  password,
 		Name:      "main",
 		Port:      3306,
