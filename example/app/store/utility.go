@@ -48,14 +48,14 @@ func FindAll(db app.IDatabase, dest app.IRecord) (total int, err error) {
 
 // FindOneByIDAndUser returns an item for a user.
 func FindOneByIDAndUser(db app.IDatabase, dest app.IRecord, ID string, userID string) (exists bool, err error) {
-	err = db.Get(dest, `
+	err = db.Get(dest, fmt.Sprintf(`
 		SELECT *
 		FROM %s
 		WHERE id = ?
 		AND user_id = ?
 		LIMIT 1
 		`,
-		dest.Table(), ID, userID)
+		dest.Table()), ID, userID)
 	return db.RecordExists(err)
 }
 
@@ -76,12 +76,12 @@ func DeleteOneByID(db app.IDatabase, dest app.IRecord, ID string) (affected int,
 
 // DeleteOneByIDAndUser removes one item from a user.
 func DeleteOneByIDAndUser(db app.IDatabase, dest app.IRecord, ID string, userID string) (affected int, err error) {
-	result, err := db.Exec(`
+	result, err := db.Exec(fmt.Sprintf(`
 	DELETE FROM %s
 	WHERE id = ?
 	AND user_id = ?
 	LIMIT 1`,
-		dest.Table(), ID, userID)
+		dest.Table()), ID, userID)
 
 	return db.AffectedRows(result), err
 }

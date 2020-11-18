@@ -37,6 +37,8 @@ func NoteCreate(c *app.Context) (err error) {
 	type Request struct {
 		// in: body
 		Body struct {
+			// example: This is a note.
+			// required: true
 			Message string `json:"message"`
 		}
 	}
@@ -301,7 +303,7 @@ func NoteDestroy(c *app.Context) (err error) {
 	}
 
 	// Delete the note for the user.
-	affected, err := store.DeleteOneByIDAndUser(c.DB, new(store.User), req.NoteID, userID)
+	affected, err := store.DeleteOneByIDAndUser(c.DB, new(store.Note), req.NoteID, userID)
 	if err != nil {
 		return c.InternalServerErrorResponse(err.Error())
 	} else if affected == 0 {

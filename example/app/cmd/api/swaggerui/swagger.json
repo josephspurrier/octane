@@ -123,10 +123,14 @@
             "in": "body",
             "schema": {
               "type": "object",
+              "required": [
+                "message"
+              ],
               "properties": {
                 "message": {
                   "type": "string",
-                  "x-go-name": "Message"
+                  "x-go-name": "Message",
+                  "example": "This is a note."
                 }
               }
             }
