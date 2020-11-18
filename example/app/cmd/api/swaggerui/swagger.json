@@ -163,6 +163,7 @@
         "parameters": [
           {
             "type": "string",
+            "example": "314445cd-e9fb-4c58-58b6-777ee06465f5",
             "x-go-name": "NoteID",
             "name": "note_id",
             "in": "path",
@@ -184,7 +185,7 @@
           }
         }
       },
-      "delete": {
+      "put": {
         "security": [
           {
             "token": []
@@ -194,7 +195,67 @@
           "note"
         ],
         "summary": "Update a note.",
+        "operationId": "NoteUpdate",
+        "parameters": [
+          {
+            "type": "string",
+            "example": "314445cd-e9fb-4c58-58b6-777ee06465f5",
+            "x-go-name": "NoteID",
+            "name": "note_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "Body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "x-go-name": "Message",
+                  "example": "This is a note."
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/OKResponse"
+          },
+          "400": {
+            "$ref": "#/responses/BadRequestResponse"
+          },
+          "401": {
+            "$ref": "#/responses/UnauthorizedResponse"
+          },
+          "500": {
+            "$ref": "#/responses/InternalServerErrorResponse"
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "token": []
+          }
+        ],
+        "tags": [
+          "note"
+        ],
+        "summary": "Delete a note.",
         "operationId": "NoteDestroy",
+        "parameters": [
+          {
+            "type": "string",
+            "example": "314445cd-e9fb-4c58-58b6-777ee06465f5",
+            "x-go-name": "NoteID",
+            "name": "note_id",
+            "in": "path",
+            "required": true
+          }
+        ],
         "responses": {
           "200": {
             "$ref": "#/responses/OKResponse"

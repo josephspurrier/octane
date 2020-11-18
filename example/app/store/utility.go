@@ -31,7 +31,7 @@ func FindOneByField(db app.IDatabase, dest app.IRecord, field string, value stri
 	return db.RecordExists(err)
 }
 
-// FindAll returns all users.
+// FindAll returns all items.
 func FindAll(db app.IDatabase, dest app.IRecord) (total int, err error) {
 	err = db.QueryRowScan(&total, fmt.Sprintf(`
 		SELECT COUNT(DISTINCT %s)
@@ -46,6 +46,19 @@ func FindAll(db app.IDatabase, dest app.IRecord) (total int, err error) {
 	return total, err
 }
 
+// FindOneByIDAndUser returns an item for a user.
+func FindOneByIDAndUser(db app.IDatabase, dest app.IRecord, ID string, userID string) (exists bool, err error) {
+	err = db.Get(dest, `
+		SELECT *
+		FROM %s
+		WHERE id = ?
+		AND user_id = ?
+		LIMIT 1
+		`,
+		dest.Table(), ID, userID)
+	return db.RecordExists(err)
+}
+
 // *****************************************************************************
 // Delete
 // *****************************************************************************
@@ -57,6 +70,18 @@ func DeleteOneByID(db app.IDatabase, dest app.IRecord, ID string) (affected int,
 	if err != nil {
 		return 0, err
 	}
+
+	return db.AffectedRows(result), err
+}
+
+// DeleteOneByIDAndUser removes one item from a user.
+func DeleteOneByIDAndUser(db app.IDatabase, dest app.IRecord, ID string, userID string) (affected int, err error) {
+	result, err := db.Exec(`
+	DELETE FROM %s
+	WHERE id = ?
+	AND user_id = ?
+	LIMIT 1`,
+		dest.Table(), ID, userID)
 
 	return db.AffectedRows(result), err
 }

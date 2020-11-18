@@ -45,6 +45,20 @@ func NoteCreate(db app.IDatabase, userID, message string) (string, error) {
 	return uuid, err
 }
 
+// NoteUpdate makes changes to an item.
+func NoteUpdate(db app.IDatabase, ID, userID, message string) (affected int, err error) {
+	result, err := db.Exec(`
+		UPDATE note
+		SET
+			message = ?
+		WHERE id = ?
+		AND user_id = ?
+		LIMIT 1
+		`,
+		message, ID, userID)
+	return db.AffectedRows(result), err
+}
+
 // NoteFindAllByUser returns all notes for a user.
 func NoteFindAllByUser(db app.IDatabase, dest *[]Note, userID string) (
 	total int, err error) {
@@ -56,17 +70,4 @@ func NoteFindAllByUser(db app.IDatabase, dest *[]Note, userID string) (
 		`,
 		userID)
 	return len(*dest), db.SuppressNoRowsError(err)
-}
-
-// FindOneByIDAndUser returns a note for a user.
-func FindOneByIDAndUser(db app.IDatabase, dest *Note, ID string, userID string) (exists bool, err error) {
-	err = db.Get(dest, `
-		SELECT *
-		FROM note
-		WHERE id = ?
-		AND user_id = ?
-		LIMIT 1
-		`,
-		ID, userID)
-	return db.RecordExists(err)
 }

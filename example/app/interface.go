@@ -19,3 +19,9 @@ type IRecord interface {
 	Table() string
 	PrimaryKey() string
 }
+
+// IToken provides outputs for the JWT.
+type IToken interface {
+	Generate(userID string) (string, error)
+	Verify(s string) (string, error)
+}

@@ -157,7 +157,7 @@ func NoteIndex(c *app.Context) (err error) {
 func NoteShow(c *app.Context) (err error) {
 	// swagger:parameters NoteShow
 	type Request struct {
-		// example:
+		// example: 314445cd-e9fb-4c58-58b6-777ee06465f5
 		// in: path
 		NoteID string `json:"note_id" validate:"required"`
 	}
@@ -211,8 +211,6 @@ func NoteShow(c *app.Context) (err error) {
 	return c.DataResponse(http.StatusOK, data)
 }
 
-/*
-
 // NoteUpdate -
 // swagger:route PUT /api/v1/note/{note_id} note NoteUpdate
 //
@@ -228,43 +226,45 @@ func NoteShow(c *app.Context) (err error) {
 //   500: InternalServerErrorResponse
 func NoteUpdate(c *app.Context) (err error) {
 	// swagger:parameters NoteUpdate
-	type request struct {
+	type Request struct {
 		// in: path
+		// example: 314445cd-e9fb-4c58-58b6-777ee06465f5
 		NoteID string `json:"note_id" validate:"required"`
 		// in: body
 		Body struct {
+			// example: This is a note.
 			Message string `json:"message"`
 		}
 	}
 
 	// Request validation.
-	req := new(request)
-	if err := p.Bind.UnmarshalAndValidate(req, r); err != nil {
-		return http.StatusBadRequest, err
+	req := new(Request)
+	if err = c.Bind(req); err != nil {
+		return c.BadRequestResponse(err.Error())
 	}
 
 	// Get the user ID.
-	userID, ok := p.Context.UserID(r)
+	userID, ok := c.UserID()
 	if !ok {
-		return http.StatusInternalServerError, errors.New("invalid user")
+		return c.InternalServerErrorResponse("invalid user")
 	}
 
 	// Determine if the note exists for the user.
-	note := p.Store.Note.New()
-	exists, err := p.Store.Note.FindOneByIDAndUser(&note, req.NoteID, userID)
+	note := new(store.Note)
+	exists, err := store.FindOneByIDAndUser(c.DB, note, req.NoteID, userID)
 	if err != nil {
-		return http.StatusInternalServerError, err
+		return c.InternalServerErrorResponse(err.Error())
 	} else if !exists {
-		return http.StatusBadRequest, errors.New("note does not exist")
+		return c.BadRequestResponse("invalid note")
 	}
 
 	// Update the note.
-	_, err = p.Store.Note.Update(req.NoteID, userID, req.Body.Message)
+	_, err = store.NoteUpdate(c.DB, req.NoteID, userID, req.Body.Message)
 	if err != nil {
-		return http.StatusInternalServerError, err
+		return c.InternalServerErrorResponse(err.Error())
 	}
 
-	return p.Response.OK(w, "note updated")
+	return c.OKResponse("note updated")
 }
 
 // NoteDestroy -
@@ -282,31 +282,31 @@ func NoteUpdate(c *app.Context) (err error) {
 //   500: InternalServerErrorResponse
 func NoteDestroy(c *app.Context) (err error) {
 	// swagger:parameters NoteDestroy
-	type request struct {
+	type Request struct {
 		// in: path
+		// example: 314445cd-e9fb-4c58-58b6-777ee06465f5
 		NoteID string `json:"note_id" validate:"required"`
 	}
 
 	// Request validation.
-	req := new(request)
-	if err := p.Bind.UnmarshalAndValidate(req, r); err != nil {
-		return http.StatusBadRequest, err
+	req := new(Request)
+	if err = c.Bind(req); err != nil {
+		return c.BadRequestResponse(err.Error())
 	}
 
 	// Get the user ID.
-	userID, ok := p.Context.UserID(r)
+	userID, ok := c.UserID()
 	if !ok {
-		return http.StatusInternalServerError, errors.New("invalid user")
+		return c.InternalServerErrorResponse("invalid user")
 	}
 
-	// Get a the note for the user.
-	affected, err := p.Store.Note.DeleteOneByIDAndUser(req.NoteID, userID)
+	// Delete the note for the user.
+	affected, err := store.DeleteOneByIDAndUser(c.DB, new(store.User), req.NoteID, userID)
 	if err != nil {
-		return http.StatusInternalServerError, err
+		return c.InternalServerErrorResponse(err.Error())
 	} else if affected == 0 {
-		return http.StatusBadRequest, errors.New("note does not exist")
+		return c.BadRequestResponse("note does not exist")
 	}
 
-	return p.Response.OK(w, "note deleted")
+	return c.OKResponse("note deleted")
 }
-*/
