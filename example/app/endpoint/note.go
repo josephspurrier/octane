@@ -9,6 +9,16 @@ import (
 	"github.com/josephspurrier/octane/example/app/store"
 )
 
+// Note is a note of a user.
+type Note struct {
+	// example: 314445cd-e9fb-4c58-58b6-777ee06465f5
+	// required: true
+	UserID string `json:"id"`
+	// example: This is a note.
+	// required: true
+	Message string `json:"message"`
+}
+
 // NoteCreate -
 // swagger:route POST /api/v1/note note NoteCreate
 //
@@ -55,6 +65,7 @@ func NoteCreate(c *app.Context) (err error) {
 		// in: body
 		Body struct {
 			octane.CreatedStatusFields
+			// required: true
 			Data struct {
 				// RecordID contains the newly created note ID.
 				// example: 314445cd-e9fb-4c58-58b6-777ee06465f5
@@ -98,14 +109,6 @@ func NoteIndex(c *app.Context) (err error) {
 		return c.InternalServerErrorResponse(err.Error())
 	}
 
-	// Note is a note of a user.
-	type Note struct {
-		// Required: true
-		UserID string `json:"id"`
-		// Required: true
-		Message string `json:"message"`
-	}
-
 	// Copy the items to the JSON model.
 	arr := make([]Note, 0)
 	for _, u := range group {
@@ -123,8 +126,9 @@ func NoteIndex(c *app.Context) (err error) {
 		// in: body
 		Body struct {
 			octane.OKStatusFields
+			// required: true
 			Data struct {
-				// Required: true
+				// required: true
 				Notes []Note `json:"notes"`
 			} `json:"data"`
 		}
@@ -179,14 +183,6 @@ func NoteShow(c *app.Context) (err error) {
 		return c.BadRequestResponse("invalid note")
 	}
 
-	// Note is a note of a user.
-	type Note struct {
-		// required: true
-		UserID string `json:"id"`
-		// required: true
-		Message string `json:"message"`
-	}
-
 	// Copy the items to the JSON model.
 	item := new(Note)
 	err = structcopy.ByTag(&note, "db", item, "json")
@@ -200,6 +196,7 @@ func NoteShow(c *app.Context) (err error) {
 		// in: body
 		Body struct {
 			octane.OKStatusFields
+			// required: true
 			Data struct {
 				// required: true
 				Note Note `json:"note"`
