@@ -9,11 +9,14 @@ import (
 	"github.com/josephspurrier/octane/example/app/store"
 )
 
-// Note is a note of a user.
+// Note represents a note belonging to a user.
+// swagger:model
 type Note struct {
+	// User who owns the note.
 	// example: 314445cd-e9fb-4c58-58b6-777ee06465f5
 	// required: true
 	UserID string `json:"id"`
+	// This is the text content of the note.
 	// example: This is a note.
 	// required: true
 	Message string `json:"message"`
@@ -22,13 +25,13 @@ type Note struct {
 // NoteCreate -
 // swagger:route POST /api/v1/note note NoteCreate
 //
-// Create a note.
+// Create a note for the current user.
 //
 // Security:
 //   token:
 //
 // Responses:
-//   201: NoteCreateReponse
+//   201: NoteCreateResponse
 //   400: BadRequestResponse
 //   401: UnauthorizedResponse
 //   500: InternalServerErrorResponse
@@ -62,7 +65,7 @@ func NoteCreate(c *app.Context) (err error) {
 	}
 
 	// NoteCreateReponse returns a user ID.
-	// swagger:response NoteCreateReponse
+	// swagger:response NoteCreateResponse
 	type NoteCreateReponse struct {
 		// in: body
 		Body struct {
@@ -87,7 +90,7 @@ func NoteCreate(c *app.Context) (err error) {
 // NoteIndex -
 // swagger:route GET /api/v1/note note NoteIndex
 //
-// List notes.
+// Return all notes for the current user.
 //
 // Security:
 //   token:
@@ -146,7 +149,7 @@ func NoteIndex(c *app.Context) (err error) {
 // NoteShow -
 // swagger:route GET /api/v1/note/{note_id} note NoteShow
 //
-// Show a note.
+// Return a note for the current user.
 //
 // Security:
 //   token:
@@ -216,7 +219,7 @@ func NoteShow(c *app.Context) (err error) {
 // NoteUpdate -
 // swagger:route PUT /api/v1/note/{note_id} note NoteUpdate
 //
-// Update a note.
+// Update a note for the current user.
 //
 // Security:
 //   token:
@@ -272,7 +275,7 @@ func NoteUpdate(c *app.Context) (err error) {
 // NoteDestroy -
 // swagger:route DELETE /api/v1/note/{note_id} note NoteDestroy
 //
-// Delete a note.
+// Delete a note for the current user.
 //
 // Security:
 //   token:

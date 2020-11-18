@@ -20,6 +20,10 @@ MYSQL_NAME=octane_db_1
 run: swagger-gen  # Generate swagger and run.
 	cd example/app/cmd/api && MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD} go run main.go
 
+.PHONY: run2
+run2: # Generate run.
+	cd example/app/cmd/api && MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD} go run main.go
+
 .PHONY: swagger-get
 swagger-get: # Download the Swagger generation tool.
 	go get github.com/go-swagger/go-swagger/cmd/swagger

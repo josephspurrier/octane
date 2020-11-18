@@ -37,7 +37,7 @@
         "tags": [
           "authentication"
         ],
-        "summary": "Authenticate a user.",
+        "summary": "Return a token after verifying the login information.",
         "operationId": "UserLogin",
         "parameters": [
           {
@@ -89,7 +89,7 @@
         "tags": [
           "note"
         ],
-        "summary": "List notes.",
+        "summary": "Return all notes for the current user.",
         "operationId": "NoteIndex",
         "responses": {
           "200": {
@@ -115,7 +115,7 @@
         "tags": [
           "note"
         ],
-        "summary": "Create a note.",
+        "summary": "Create a note for the current user.",
         "operationId": "NoteCreate",
         "parameters": [
           {
@@ -138,7 +138,7 @@
         ],
         "responses": {
           "201": {
-            "$ref": "#/responses/NoteCreateReponse"
+            "$ref": "#/responses/NoteCreateResponse"
           },
           "400": {
             "$ref": "#/responses/BadRequestResponse"
@@ -162,7 +162,7 @@
         "tags": [
           "note"
         ],
-        "summary": "Show a note.",
+        "summary": "Return a note for the current user.",
         "operationId": "NoteShow",
         "parameters": [
           {
@@ -198,7 +198,7 @@
         "tags": [
           "note"
         ],
-        "summary": "Update a note.",
+        "summary": "Update a note for the current user.",
         "operationId": "NoteUpdate",
         "parameters": [
           {
@@ -248,7 +248,7 @@
         "tags": [
           "note"
         ],
-        "summary": "Delete a note.",
+        "summary": "Delete a note for the current user.",
         "operationId": "NoteDestroy",
         "parameters": [
           {
@@ -281,7 +281,7 @@
         "tags": [
           "authentication"
         ],
-        "summary": "Register a user.",
+        "summary": "Create a user in the system.",
         "operationId": "UserRegister",
         "parameters": [
           {
@@ -341,18 +341,20 @@
   "definitions": {
     "Note": {
       "type": "object",
-      "title": "Note is a note of a user.",
+      "title": "Note represents a note belonging to a user.",
       "required": [
         "id",
         "message"
       ],
       "properties": {
         "id": {
+          "description": "User who owns the note.",
           "type": "string",
           "x-go-name": "UserID",
           "example": "314445cd-e9fb-4c58-58b6-777ee06465f5"
         },
         "message": {
+          "description": "This is the text content of the note.",
           "type": "string",
           "x-go-name": "Message",
           "example": "This is a note."
@@ -498,7 +500,7 @@
         }
       }
     },
-    "NoteCreateReponse": {
+    "NoteCreateResponse": {
       "description": "NoteCreateReponse returns a user ID.",
       "schema": {
         "type": "object",
