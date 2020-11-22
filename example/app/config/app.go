@@ -1,8 +1,6 @@
 package config
 
 import (
-	"fmt"
-	"net/http"
 	"time"
 
 	"github.com/josephspurrier/octane"
@@ -19,6 +17,7 @@ import (
 func Config() *echo.Echo {
 	e := echo.New()
 	e.HideBanner = true
+	e.Logger.SetPrefix("api")
 
 	// Load the environment variables.
 	settings := LoadEnv(e.Logger, "")
@@ -48,27 +47,9 @@ func Config() *echo.Echo {
 	}, ac.Webtoken, *ac)
 	e.Use(token.Handler())
 
-	// Set the default error handler so all errors use the standard format.
+	// Set the default error handler so all errors are handled outside of this function.
 	e.HTTPErrorHandler = func(err error, c echo.Context) {
-		cc := &app.Context{
-			ResponseJSON: octane.ResponseJSON{Context: c},
-		}
-
-		code := http.StatusInternalServerError
-		message := ""
-		if he, ok := err.(*echo.HTTPError); ok {
-			// Send a response when we know the message.
-			code = he.Code
-			message = fmt.Sprint(he.Message)
-			c.Logger().Error(err)
-			cc.MessageResponse(message, code)
-			return
-		}
-
-		// If we don't know the message, send the whole error as the message
-		// and use the Internal Server Error.
 		c.Logger().Error(err)
-		cc.MessageResponse(err.Error(), code)
 	}
 
 	// Endpoints.

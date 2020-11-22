@@ -444,7 +444,7 @@
             ],
             "properties": {
               "token": {
-                "description": "Token contains the API token for authentication",
+                "description": "Token contains the API token for authentication.",
                 "type": "string",
                 "x-go-name": "Token",
                 "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiIwNWE3ZjlmYS1mN2ViLTIzNmItYjJiYi1iYTE0NWUwYTRhMmQiLCJleHAiOjE2MDU2MTQ1NzEsImp0aSI6IjA0MjQ0Yzc4LTU5MzItYTBjZS1lMjAzLTc3MmNiMDVhYmFhZiIsImlhdCI6MTYwNTU4NTc3MSwibmJmIjoxNjA1NTg1NzcxfQ.kAeCynxCh35moPf5OEsn7LW0oHNEBVWxVOiZ6RdyUwk"

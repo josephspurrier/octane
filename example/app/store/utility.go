@@ -12,7 +12,6 @@ import (
 
 // FindOneByID will find a record by string ID.
 func FindOneByID(db app.IDatabase, dest app.IRecord, ID string) (exists bool, err error) {
-
 	err = db.Get(dest, fmt.Sprintf(`
 		SELECT * FROM %s
 		WHERE %s = ?

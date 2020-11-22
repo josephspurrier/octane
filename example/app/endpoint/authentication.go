@@ -60,7 +60,7 @@ func Login(c *app.Context) (err error) {
 		Body struct {
 			octane.OKStatusFields
 			Data struct {
-				// Token contains the API token for authentication
+				// Token contains the API token for authentication.
 				// example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiIwNWE3ZjlmYS1mN2ViLTIzNmItYjJiYi1iYTE0NWUwYTRhMmQiLCJleHAiOjE2MDU2MTQ1NzEsImp0aSI6IjA0MjQ0Yzc4LTU5MzItYTBjZS1lMjAzLTc3MmNiMDVhYmFhZiIsImlhdCI6MTYwNTU4NTc3MSwibmJmIjoxNjA1NTg1NzcxfQ.kAeCynxCh35moPf5OEsn7LW0oHNEBVWxVOiZ6RdyUwk
 				// required: true
 				Token string `json:"token"`

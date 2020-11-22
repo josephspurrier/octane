@@ -18,11 +18,7 @@ MYSQL_NAME=octane_db_1
 
 .PHONY: run
 run: swagger-gen  # Generate swagger and run.
-	cd example/app/cmd/api && MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD} go run main.go
-
-.PHONY: run2
-run2: # Generate run.
-	cd example/app/cmd/api && MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD} go run main.go
+	cd example/app/cmd/api && MYSQL_USER=${MYSQL_USER} MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD} go run main.go
 
 .PHONY: swagger-get
 swagger-get: # Download the Swagger generation tool.
@@ -49,14 +45,13 @@ db-stop: # Stop the running database container.
 db-reset: # Drop the database, create the database, and perform the migrations.
 	docker exec ${MYSQL_NAME} sh -c "exec mysql -h 127.0.0.1 -uroot -p${MYSQL_ROOT_PASSWORD} -e 'DROP DATABASE IF EXISTS main;'"
 	docker exec ${MYSQL_NAME} sh -c "exec mysql -h 127.0.0.1 -uroot -p${MYSQL_ROOT_PASSWORD} -e 'CREATE DATABASE IF NOT EXISTS main DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;'"
-	MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD} go run ./example/app/cmd/dbmigrate/main.go
+	MYSQL_USER=${MYSQL_USER} MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD} go run ./example/app/cmd/dbmigrate/main.go
 
 .PHONY: db-reset2
 db-reset2: # Drop the database, create the database, and perform the migrations.
-	mysql -h 127.0.0.1 -u admin -p${MYSQL_ROOT_PASSWORD} -e 'DROP DATABASE IF EXISTS main;'
-	mysql -h 127.0.0.1 -u admin -p${MYSQL_ROOT_PASSWORD} -e 'CREATE DATABASE IF NOT EXISTS main DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;'
-	MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD} go run ./example/app/cmd/dbmigrate/main.go
-
+	mysql -h 127.0.0.1 -u ${MYSQL_USER} -p${MYSQL_ROOT_PASSWORD} -e 'DROP DATABASE IF EXISTS main;'
+	mysql -h 127.0.0.1 -u ${MYSQL_USER} -p${MYSQL_ROOT_PASSWORD} -e 'CREATE DATABASE IF NOT EXISTS main DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_unicode_ci;'
+	MYSQL_USER=${MYSQL_USER} MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD} go run ./example/app/cmd/dbmigrate/main.go
 
 .PHONY: db-rm
 db-rm: # Stop and remove the database container.

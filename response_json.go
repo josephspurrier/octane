@@ -2,6 +2,7 @@ package octane
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -136,7 +137,11 @@ func (c *ResponseJSON) MessageResponse(message string, statusCode int) error {
 	resp.Body.Message = message
 	resp.Body.StatusCode = statusCode
 	resp.Body.StatusMessage = http.StatusText(statusCode)
-	return c.JSON(resp.Body.StatusCode, resp.Body)
+	err := c.JSON(resp.Body.StatusCode, resp.Body)
+	if statusCode >= 400 {
+		err = errors.New(message)
+	}
+	return err
 }
 
 // OKResponse sends 200.

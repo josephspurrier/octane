@@ -19,21 +19,27 @@ func Database(l echo.Logger) *database.DBW {
 		host = "127.0.0.1"
 	}
 
+	// If the user env var is set, use it.
+	username := os.Getenv("MYSQL_USER")
+	if len(username) == 0 {
+		username = "root"
+	}
+
 	// If the password env var is set, use it.
 	password := os.Getenv("MYSQL_ROOT_PASSWORD")
 
 	// Set the database connection information.
 	con := &mysql.Connection{
 		Hostname:  host,
-		Username:  "admin",
+		Username:  username,
 		Password:  password,
 		Name:      "main",
 		Port:      3306,
-		Parameter: "collation=utf8mb4_unicode_ci&parseTime=true&multiStatements=true",
+		Parameter: "parseTime=true&allowNativePasswords=true&collation=utf8mb4_unicode_ci&multiStatements=true",
 	}
 
 	// Migrate the database.
-	dbx, err := migrate(l, con, Changesets)
+	dbx, err := Migrate(l, con, Changesets)
 	if err != nil {
 		l.Fatalf(err.Error())
 	}
@@ -41,9 +47,9 @@ func Database(l echo.Logger) *database.DBW {
 	return database.New(dbx, con.Name)
 }
 
-// migrate will run the database migrations and will create the database if it
+// Migrate will run the database migrations and will create the database if it
 // does not exist.
-func migrate(l echo.Logger, con *mysql.Connection, changesets string) (*sqlx.DB, error) {
+func Migrate(l echo.Logger, con *mysql.Connection, changesets string) (*sqlx.DB, error) {
 	// Connect to the database.
 	db, err := mysql.New(con)
 	if err != nil {
@@ -60,7 +66,7 @@ func migrate(l echo.Logger, con *mysql.Connection, changesets string) (*sqlx.DB,
 			return nil, err
 		}
 		if l != nil {
-			l.Printf("Database created.")
+			l.Debug("Database created.")
 		}
 
 		// Attempt to reconnect with the database name.
