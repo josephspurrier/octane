@@ -3,13 +3,19 @@ package octane
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"reflect"
 	"strings"
 
+	"github.com/go-playground/form/v4"
 	"github.com/labstack/echo/v4"
 	validator "gopkg.in/go-playground/validator.v9"
 )
+
+// Set a Decoder instance as a package global, because it caches
+// meta-data about structs, and an instance can be shared safely.
+var decoder = form.NewDecoder()
 
 // IRouter extracts a URL parameter value.
 type IRouter interface {
@@ -23,12 +29,14 @@ type Binder struct {
 
 // NewBinder returns a new binder for request bind and validation.
 func NewBinder() *Binder {
+	decoder.SetTagName("json")
+
 	return &Binder{
 		validator: validator.New(),
 	}
 }
 
-// Bind -
+// Bind will unmarshal and validate a struct from a request.
 func (b *Binder) Bind(i interface{}, c echo.Context) (err error) {
 	return b.unmarshalAndValidate(i, c.Request(), c)
 }
@@ -65,24 +73,39 @@ func (b *Binder) Unmarshal(iface interface{}, r *http.Request, router IRouter) (
 	ct := r.Header.Get("Content-Type")
 	switch true {
 	case ct == "", strings.Contains(ct, "application/x-www-form-urlencoded"):
-		// Parse the form.
-		err = r.ParseForm()
+		err := r.ParseForm()
 		if err != nil {
-			return err
+			return fmt.Errorf("body could not be read: %v", err.Error())
 		}
 
-		for k, vv := range r.Form {
-			m[k] = vv[0]
+		// Loop through each field to extract the URL parameter.
+		elem := reflect.Indirect(v.Elem())
+		keys := elem.Type()
+		for j := 0; j < elem.NumField(); j++ {
+			tag := keys.Field(j).Tag
+			tagvalue := tag.Get("json")
+			pathParam := router.Param(tagvalue)
+			if len(pathParam) > 0 {
+				r.PostForm.Add(tagvalue, pathParam)
+			}
 		}
+
+		// r.PostForm is a map of our POST form values.
+		err = decoder.Decode(iface, r.PostForm)
+		if err != nil {
+			return fmt.Errorf("form could not be decoded: %v", err.Error())
+		}
+
+		return nil
 	case strings.Contains(ct, "application/json"):
 		// Decode to the interface.
-		err = json.NewDecoder(r.Body).Decode(&m)
+		_ = json.NewDecoder(r.Body).Decode(&m)
 		r.Body.Close()
-		if err != nil {
-			// No longer fail on an unmarshal error. This is so users can submit
-			// empty data for GET requests, yet we can still map the URL
-			// parameter by using the same logic.
-		}
+		// if err != nil {
+		// No longer fail on an unmarshal error. This is so users can submit
+		// empty data for GET requests, yet we can still map the URL
+		// parameter by using the same logic.
+		//}
 
 		// Copy the map items to a new map.
 		mt := make(map[string]interface{})
