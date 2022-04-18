@@ -1,19 +1,21 @@
 package octane
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"net/http"
 	"reflect"
 	"strings"
 
+	"github.com/gorilla/schema"
 	"github.com/labstack/echo/v4"
-	"gopkg.in/ajg/form.v1"
 	validator "gopkg.in/go-playground/validator.v9"
 )
+
+// Set a Decoder instance as a package global, because it caches
+// meta-data about structs, and an instance can be shared safely.
+var decoder = schema.NewDecoder()
 
 // IRouter extracts a URL parameter value.
 type IRouter interface {
@@ -27,12 +29,14 @@ type Binder struct {
 
 // NewBinder returns a new binder for request bind and validation.
 func NewBinder() *Binder {
+	decoder.SetAliasTag("json")
+
 	return &Binder{
 		validator: validator.New(),
 	}
 }
 
-// Bind -
+// Bind will unmarshal and validate a struct from a request.
 func (b *Binder) Bind(i interface{}, c echo.Context) (err error) {
 	return b.unmarshalAndValidate(i, c.Request(), c)
 }
@@ -69,32 +73,29 @@ func (b *Binder) Unmarshal(iface interface{}, r *http.Request, router IRouter) (
 	ct := r.Header.Get("Content-Type")
 	switch true {
 	case ct == "", strings.Contains(ct, "application/x-www-form-urlencoded"):
-		b := bytes.NewBuffer(nil)
-		_, err = io.Copy(b, r.Body)
+		err := r.ParseForm()
 		if err != nil {
 			return fmt.Errorf("body could not be read: %v", err.Error())
 		}
 
 		// Loop through each field to extract the URL parameter.
-		arrValues := make([]string, 0)
 		elem := reflect.Indirect(v.Elem())
 		keys := elem.Type()
 		for j := 0; j < elem.NumField(); j++ {
 			tag := keys.Field(j).Tag
-			tagvalue := tag.Get("form")
+			tagvalue := tag.Get("json")
 			pathParam := router.Param(tagvalue)
 			if len(pathParam) > 0 {
-				arrValues = append(arrValues, fmt.Sprintf("%v=%v", tagvalue, pathParam))
+				r.PostForm.Add(tagvalue, pathParam)
 			}
 		}
 
-		sForm := strings.Join(append(arrValues, b.String()), "&")
-
-		d := form.NewDecoder(bytes.NewReader([]byte(sForm)))
-		d.IgnoreUnknownKeys(true)
-		if err = d.Decode(&iface); err != nil {
+		// r.PostForm is a map of our POST form values.
+		err = decoder.Decode(iface, r.PostForm)
+		if err != nil {
 			return fmt.Errorf("form could not be decoded: %v", err.Error())
 		}
+
 		return nil
 	case strings.Contains(ct, "application/json"):
 		// Decode to the interface.

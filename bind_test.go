@@ -63,17 +63,17 @@ func TestFormSuccess(t *testing.T) {
 		// swagger:parameters UserCreate
 		type request struct {
 			// in: path
-			UserID string `form:"user_id" validate:"required"`
+			UserID string `json:"user_id" validate:"required"`
 			// in: formData
 			// Required: true
-			FirstName string `form:"first_name" validate:"required"`
+			FirstName string `json:"first_name" validate:"required"`
 			// in: formData
 			// Required: true
-			LastName string `form:"last_name"  validate:"required"`
+			LastName string `json:"last_name"  validate:"required"`
 			// in: formData
-			Age uint8 `form:"age,omitempty" bson:"age,omitempty" validate:"required"`
+			Age uint8 `json:"age,omitempty" bson:"age,omitempty" validate:"required"`
 			// in: formData
-			//Count StringInt `form:"count" validate:"required" bson:"count,omitempty" json:"count,omitempty"`
+			//Count StringInt `json:"count" validate:"required" bson:"count,omitempty" json:"count,omitempty"`
 		}
 
 		req := new(request)
@@ -114,13 +114,13 @@ func TestFormFailValidate(t *testing.T) {
 		// swagger:parameters UserCreate
 		type request struct {
 			// in: path
-			UserID string `form:"user_id" validate:"required"`
+			UserID string `json:"user_id" validate:"required"`
 			// in: formData
 			// Required: true
-			FirstName string `form:"first_name" validate:"required"`
+			FirstName string `json:"first_name" validate:"required"`
 			// in: formData
 			// Required: true
-			LastName string `form:"last_name" validate:"required"`
+			LastName string `json:"last_name" validate:"required"`
 		}
 
 		req := new(request)
@@ -157,13 +157,13 @@ func TestFormNil(t *testing.T) {
 		// swagger:parameters UserCreate
 		type request struct {
 			// in: path
-			UserID string `form:"user_id" validate:"required"`
+			UserID string `json:"user_id" validate:"required"`
 			// in: formData
 			// Required: true
-			FirstName string `form:"first_name" validate:"required"`
+			FirstName string `json:"first_name" validate:"required"`
 			// in: formData
 			// Required: true
-			LastName string `form:"last_name" validate:"required"`
+			LastName string `json:"last_name" validate:"required"`
 		}
 
 		req := new(request)
@@ -196,13 +196,13 @@ func TestFormMissingPointer(t *testing.T) {
 		// swagger:parameters UserCreate
 		type request struct {
 			// in: path
-			UserID string `form:"user_id" validate:"required"`
+			UserID string `json:"user_id" validate:"required"`
 			// in: formData
 			// Required: true
-			FirstName string `form:"first_name" validate:"required"`
+			FirstName string `json:"first_name" validate:"required"`
 			// in: formData
 			// Required: true
-			LastName string `form:"last_name" validate:"required"`
+			LastName string `json:"last_name" validate:"required"`
 		}
 
 		req := request{}
