@@ -30,6 +30,7 @@ type Binder struct {
 // NewBinder returns a new binder for request bind and validation.
 func NewBinder() *Binder {
 	decoder.SetAliasTag("json")
+	decoder.IgnoreUnknownKeys(true)
 
 	return &Binder{
 		validator: validator.New(),

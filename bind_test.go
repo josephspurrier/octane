@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"net/http/httptest"
 	"net/url"
-	"strconv"
 	"strings"
 	"testing"
 
@@ -14,41 +13,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// StringInt create a type alias for type int
+// StringInt create a type alias for type int.
 type StringInt int
-
-// UnmarshalJSON create a custom unmarshal for the StringInt
-/// this helps us check the type of our value before unmarshalling it
-
-func (st *StringInt) UnmarshalJSON(b []byte) error {
-	//convert the bytes into an interface
-	//this will help us check the type of our value
-	//if it is a string that can be converted into an int we convert it
-	///otherwise we return an error
-	var item interface{}
-	if err := json.Unmarshal(b, &item); err != nil {
-		return err
-	}
-	switch v := item.(type) {
-	case int:
-		*st = StringInt(v)
-	case float64:
-		*st = StringInt(int(v))
-	case string:
-		///here convert the string into
-		///an integer
-		i, err := strconv.Atoi(v)
-		if err != nil {
-			///the string might not be of integer type
-			///so return an error
-			return err
-
-		}
-		*st = StringInt(i)
-
-	}
-	return nil
-}
 
 func TestFormSuccess(t *testing.T) {
 	called := false
@@ -73,7 +39,7 @@ func TestFormSuccess(t *testing.T) {
 			// in: formData
 			Age uint8 `json:"age,omitempty" bson:"age,omitempty" validate:"required"`
 			// in: formData
-			//Count StringInt `json:"count" validate:"required" bson:"count,omitempty" json:"count,omitempty"`
+			Count StringInt `validate:"required" bson:"count,omitempty" json:"count,omitempty"`
 		}
 
 		req := new(request)
@@ -83,7 +49,7 @@ func TestFormSuccess(t *testing.T) {
 		assert.Equal(t, "john", req.FirstName)
 		assert.Equal(t, "smith", req.LastName)
 		assert.Equal(t, uint8(3), req.Age)
-		//assert.Equal(t, 3, req.Count)
+		assert.Equal(t, StringInt(3), req.Count)
 		return nil
 	})
 
@@ -91,7 +57,7 @@ func TestFormSuccess(t *testing.T) {
 	form.Add("first_name", "john")
 	form.Add("last_name", "smith")
 	form.Add("age", "3")
-	//form.Add("count", "3")
+	form.Add("count", "3")
 
 	r := httptest.NewRequest("POST", "/user/10", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", "application/x-www-form-urlencoded")
