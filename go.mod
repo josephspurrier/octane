@@ -4,8 +4,8 @@ go 1.15
 
 require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
+	github.com/go-playground/form/v4 v4.2.0
 	github.com/go-playground/universal-translator v0.18.0 // indirect
-	github.com/gorilla/schema v1.2.0
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/josephspurrier/rove v0.0.0-20190513125012-6843a2df19ca
 	github.com/kr/text v0.2.0 // indirect

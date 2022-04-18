@@ -8,14 +8,14 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/gorilla/schema"
+	"github.com/go-playground/form/v4"
 	"github.com/labstack/echo/v4"
 	validator "gopkg.in/go-playground/validator.v9"
 )
 
 // Set a Decoder instance as a package global, because it caches
 // meta-data about structs, and an instance can be shared safely.
-var decoder = schema.NewDecoder()
+var decoder = form.NewDecoder()
 
 // IRouter extracts a URL parameter value.
 type IRouter interface {
@@ -29,8 +29,7 @@ type Binder struct {
 
 // NewBinder returns a new binder for request bind and validation.
 func NewBinder() *Binder {
-	decoder.SetAliasTag("json")
-	decoder.IgnoreUnknownKeys(true)
+	decoder.SetTagName("json")
 
 	return &Binder{
 		validator: validator.New(),
