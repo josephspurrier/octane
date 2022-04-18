@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http/httptest"
 	"net/url"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -12,6 +13,42 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 )
+
+// StringInt create a type alias for type int
+type StringInt int
+
+// UnmarshalJSON create a custom unmarshal for the StringInt
+/// this helps us check the type of our value before unmarshalling it
+
+func (st *StringInt) UnmarshalJSON(b []byte) error {
+	//convert the bytes into an interface
+	//this will help us check the type of our value
+	//if it is a string that can be converted into an int we convert it
+	///otherwise we return an error
+	var item interface{}
+	if err := json.Unmarshal(b, &item); err != nil {
+		return err
+	}
+	switch v := item.(type) {
+	case int:
+		*st = StringInt(v)
+	case float64:
+		*st = StringInt(int(v))
+	case string:
+		///here convert the string into
+		///an integer
+		i, err := strconv.Atoi(v)
+		if err != nil {
+			///the string might not be of integer type
+			///so return an error
+			return err
+
+		}
+		*st = StringInt(i)
+
+	}
+	return nil
+}
 
 func TestFormSuccess(t *testing.T) {
 	called := false
@@ -26,27 +63,35 @@ func TestFormSuccess(t *testing.T) {
 		// swagger:parameters UserCreate
 		type request struct {
 			// in: path
-			UserID string `json:"user_id" validate:"required"`
+			UserID string `form:"user_id" validate:"required"`
 			// in: formData
 			// Required: true
-			FirstName string `json:"first_name" validate:"required"`
+			FirstName string `form:"first_name" validate:"required"`
 			// in: formData
 			// Required: true
-			LastName string `json:"last_name" validate:"required"`
+			LastName string `form:"last_name"  validate:"required"`
+			// in: formData
+			Age uint8 `form:"age,omitempty" bson:"age,omitempty" validate:"required"`
+			// in: formData
+			//Count StringInt `form:"count" validate:"required" bson:"count,omitempty" json:"count,omitempty"`
 		}
 
 		req := new(request)
-		assert.Nil(t, c.Bind(req))
+		assert.NoError(t, c.Bind(req))
 
 		assert.Equal(t, "10", req.UserID)
 		assert.Equal(t, "john", req.FirstName)
 		assert.Equal(t, "smith", req.LastName)
+		assert.Equal(t, uint8(3), req.Age)
+		//assert.Equal(t, 3, req.Count)
 		return nil
 	})
 
 	form := url.Values{}
 	form.Add("first_name", "john")
 	form.Add("last_name", "smith")
+	form.Add("age", "3")
+	//form.Add("count", "3")
 
 	r := httptest.NewRequest("POST", "/user/10", strings.NewReader(form.Encode()))
 	r.Header.Add("Content-Type", "application/x-www-form-urlencoded")
@@ -69,13 +114,13 @@ func TestFormFailValidate(t *testing.T) {
 		// swagger:parameters UserCreate
 		type request struct {
 			// in: path
-			UserID string `json:"user_id" validate:"required"`
+			UserID string `form:"user_id" validate:"required"`
 			// in: formData
 			// Required: true
-			FirstName string `json:"first_name" validate:"required"`
+			FirstName string `form:"first_name" validate:"required"`
 			// in: formData
 			// Required: true
-			LastName string `json:"last_name" validate:"required"`
+			LastName string `form:"last_name" validate:"required"`
 		}
 
 		req := new(request)
@@ -112,13 +157,13 @@ func TestFormNil(t *testing.T) {
 		// swagger:parameters UserCreate
 		type request struct {
 			// in: path
-			UserID string `json:"user_id" validate:"required"`
+			UserID string `form:"user_id" validate:"required"`
 			// in: formData
 			// Required: true
-			FirstName string `json:"first_name" validate:"required"`
+			FirstName string `form:"first_name" validate:"required"`
 			// in: formData
 			// Required: true
-			LastName string `json:"last_name" validate:"required"`
+			LastName string `form:"last_name" validate:"required"`
 		}
 
 		req := new(request)
@@ -151,13 +196,13 @@ func TestFormMissingPointer(t *testing.T) {
 		// swagger:parameters UserCreate
 		type request struct {
 			// in: path
-			UserID string `json:"user_id" validate:"required"`
+			UserID string `form:"user_id" validate:"required"`
 			// in: formData
 			// Required: true
-			FirstName string `json:"first_name" validate:"required"`
+			FirstName string `form:"first_name" validate:"required"`
 			// in: formData
 			// Required: true
-			LastName string `json:"last_name" validate:"required"`
+			LastName string `form:"last_name" validate:"required"`
 		}
 
 		req := request{}
@@ -202,6 +247,8 @@ func TestJSONSuccess(t *testing.T) {
 				FirstName string `json:"first_name" validate:"required"`
 				// Required: true
 				LastName string `json:"last_name" validate:"required"`
+				// Required: true
+				Age uint8 `json:"age,omitempty" bson:"age,omitempty" validate:"required"`
 			}
 		}
 
@@ -211,12 +258,14 @@ func TestJSONSuccess(t *testing.T) {
 		assert.Equal(t, "10", req.UserID)
 		assert.Equal(t, "john", req.FirstName)
 		assert.Equal(t, "smith", req.LastName)
+		assert.Equal(t, uint8(3), req.Age)
 		return nil
 	})
 
-	form := make(map[string]string)
+	form := make(map[string]interface{})
 	form["first_name"] = "john"
 	form["last_name"] = "smith"
+	form["age"] = uint8(3)
 	jf, _ := json.Marshal(form)
 
 	r := httptest.NewRequest("POST", "/user/10", bytes.NewReader(jf))

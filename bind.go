@@ -1,13 +1,17 @@
 package octane
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"io"
 	"net/http"
 	"reflect"
 	"strings"
 
 	"github.com/labstack/echo/v4"
+	"gopkg.in/ajg/form.v1"
 	validator "gopkg.in/go-playground/validator.v9"
 )
 
@@ -65,24 +69,42 @@ func (b *Binder) Unmarshal(iface interface{}, r *http.Request, router IRouter) (
 	ct := r.Header.Get("Content-Type")
 	switch true {
 	case ct == "", strings.Contains(ct, "application/x-www-form-urlencoded"):
-		// Parse the form.
-		err = r.ParseForm()
+		b := bytes.NewBuffer(nil)
+		_, err = io.Copy(b, r.Body)
 		if err != nil {
-			return err
+			return fmt.Errorf("body could not be read: %v", err.Error())
 		}
 
-		for k, vv := range r.Form {
-			m[k] = vv[0]
+		// Loop through each field to extract the URL parameter.
+		arrValues := make([]string, 0)
+		elem := reflect.Indirect(v.Elem())
+		keys := elem.Type()
+		for j := 0; j < elem.NumField(); j++ {
+			tag := keys.Field(j).Tag
+			tagvalue := tag.Get("form")
+			pathParam := router.Param(tagvalue)
+			if len(pathParam) > 0 {
+				arrValues = append(arrValues, fmt.Sprintf("%v=%v", tagvalue, pathParam))
+			}
 		}
+
+		sForm := strings.Join(append(arrValues, b.String()), "&")
+
+		d := form.NewDecoder(bytes.NewReader([]byte(sForm)))
+		d.IgnoreUnknownKeys(true)
+		if err = d.Decode(&iface); err != nil {
+			return fmt.Errorf("form could not be decoded: %v", err.Error())
+		}
+		return nil
 	case strings.Contains(ct, "application/json"):
 		// Decode to the interface.
-		err = json.NewDecoder(r.Body).Decode(&m)
+		_ = json.NewDecoder(r.Body).Decode(&m)
 		r.Body.Close()
-		if err != nil {
-			// No longer fail on an unmarshal error. This is so users can submit
-			// empty data for GET requests, yet we can still map the URL
-			// parameter by using the same logic.
-		}
+		// if err != nil {
+		// No longer fail on an unmarshal error. This is so users can submit
+		// empty data for GET requests, yet we can still map the URL
+		// parameter by using the same logic.
+		//}
 
 		// Copy the map items to a new map.
 		mt := make(map[string]interface{})
